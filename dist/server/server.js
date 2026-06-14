@@ -315,7 +315,7 @@ app.get("/api/catalog/albums/:slug", (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-const publicPath = path.join(__dirname, "../../../public");
+const publicPath = path.join(__dirname, "../../public");
 app.use(express.static(publicPath));
 app.get("*", (req, res) => {
     if (req.path.startsWith("/api/")) {

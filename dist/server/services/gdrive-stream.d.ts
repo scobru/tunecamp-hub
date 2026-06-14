@@ -1,5 +1,5 @@
 import { type Readable } from "stream";
-import type { DBService } from "../../../src/server/core/database.js";
+import type { DBService } from "../core/database.js";
 export interface GoogleDriveFile {
     id: string;
     name: string;

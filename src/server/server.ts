@@ -8,6 +8,7 @@ import { createDatabase } from "./core/database.js";
 import { StripeConnectService } from "./services/stripe-connect.js";
 import { GoogleDriveService } from "./services/gdrive-stream.js";
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -87,7 +88,7 @@ app.post("/api/auth/register", async (req, res) => {
 
         const passwordHash = await bcrypt.hash(password, 10);
         const userId = dbService.createUser(username, passwordHash, "user");
-        
+
         res.status(201).json({ success: true, userId });
     } catch (err: any) {
         res.status(500).json({ error: err.message });
@@ -153,7 +154,7 @@ app.post("/api/artist/profile", authenticateToken, (req: any, res) => {
         }
 
         const artistId = dbService.createArtist(name, slug, userId);
-        
+
         // Return a fresh token with artistId embedded
         const token = jwt.sign(
             { id: user.id, username: user.username, role: "artist", artistId },
@@ -180,7 +181,7 @@ app.get("/api/payments/stripe/onboarding", authenticateToken, async (req: any, r
 
         const host = req.get("host");
         const publicUrl = `${req.protocol}://${host}`;
-        
+
         const url = await stripeService.createOnboardingLink(artist.id, publicUrl);
         res.json({ url });
     } catch (err: any) {
@@ -206,10 +207,10 @@ app.get("/api/payments/stripe/onboarding-complete", async (req, res) => {
 
 app.post("/api/payments/stripe/create-session", optionalAuthenticateToken, async (req: any, res) => {
     const { trackId, albumId, successUrl, cancelUrl } = req.body;
-    
+
     try {
         const buyerEmail = req.user ? req.user.username : undefined;
-        
+
         const session = await stripeService.createCheckoutSession({
             trackId: trackId ? parseInt(trackId, 10) : undefined,
             albumId: albumId ? parseInt(albumId, 10) : undefined,
@@ -231,7 +232,7 @@ app.get("/api/storage/gdrive/auth", authenticateToken, (req: any, res) => {
     const userId = req.user.id;
     const host = req.get("host");
     const publicUrl = `${req.protocol}://${host}`;
-    
+
     gdriveService.setRedirectUri(`${publicUrl}/api/storage/gdrive/callback`);
     const url = gdriveService.getAuthUrl(userId);
     res.json({ url });
@@ -247,10 +248,10 @@ app.get("/api/storage/gdrive/callback", async (req, res) => {
         const userId = parseInt(state as string, 10);
         const host = req.get("host");
         const publicUrl = `${req.protocol}://${host}`;
-        
+
         gdriveService.setRedirectUri(`${publicUrl}/api/storage/gdrive/callback`);
         await gdriveService.exchangeCode(code as string, userId);
-        
+
         res.send("<h1>Google Drive successfully connected to TuneCamp Central! You can close this tab now.</h1>");
     } catch (err: any) {
         res.status(500).send(`OAuth Error: ${err.message}`);
@@ -371,7 +372,7 @@ app.get("/api/catalog/albums/:slug", (req, res) => {
     }
 });
 
-const publicPath = path.join(__dirname, "../../../public");
+const publicPath = path.join(__dirname, "../../public");
 app.use(express.static(publicPath));
 
 app.get("*", (req, res) => {

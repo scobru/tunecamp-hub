@@ -1,5 +1,7 @@
 import Stripe from "stripe";
 import type { DBService } from "../core/database.js";
+import dotenv from "dotenv"
+dotenv.config()
 
 export class StripeConnectService {
     private stripe: InstanceType<typeof Stripe> | null = null;

@@ -1,6 +1,8 @@
 import axios from "axios";
 import { type Readable } from "stream";
 import type { DBService } from "../core/database.js";
+import dotenv from "dotenv"
+dotenv.config()
 
 export interface GoogleDriveFile {
     id: string;
