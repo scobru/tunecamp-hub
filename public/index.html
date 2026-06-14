@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TuneCamp Central</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <!-- CSS Style -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="dark-theme">
+    
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+        <div class="navbar-container">
+            <a href="#/" class="logo">
+                <svg viewBox="0 0 100 100" class="logo-svg">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="8"/>
+                    <polygon points="40,30 70,50 40,70" fill="currentColor"/>
+                </svg>
+                <span>TuneCamp Central</span>
+            </a>
+            
+            <nav class="nav-links">
+                <a href="#/" class="nav-link active" id="nav-discover">Discover</a>
+                <a href="#/dashboard" class="nav-link hidden" id="nav-dashboard">Dashboard</a>
+                <a href="#/login" class="btn btn-outline" id="nav-login">Sign In</a>
+                <div class="user-profile hidden" id="nav-profile">
+                    <span id="user-display-name">Username</span>
+                    <button class="btn btn-ghost btn-sm" id="btn-logout">Logout</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Main Content Container (Dynamic SPA Views) -->
+    <main class="main-content">
+        
+        <!-- 1. Home / Discover View -->
+        <section id="home-view" class="view">
+            <div class="hero-section">
+                <h1>Support independent music directly.</h1>
+                <p>Welcome to TuneCamp Central. Stream and purchase high-quality music directly from creators. Artists keep 90% of the revenue and retain full ownership of their files on Google Drive.</p>
+            </div>
+            
+            <div class="section-title">
+                <h2>Featured Albums</h2>
+            </div>
+            <div class="album-grid" id="featured-albums">
+                <!-- Dynamic Content -->
+                <p class="placeholder-text">Loading featured releases...</p>
+            </div>
+        </section>
+
+        <!-- 2. Artist Profile View -->
+        <section id="artist-view" class="view hidden">
+            <div class="artist-banner" id="artist-banner"></div>
+            <div class="artist-profile-container">
+                <div class="artist-sidebar">
+                    <div class="artist-photo" id="artist-photo"></div>
+                    <h1 id="artist-name">Artist Name</h1>
+                    <p class="artist-bio" id="artist-bio">No bio available yet.</p>
+                    <div class="artist-links" id="artist-links"></div>
+                </div>
+                <div class="artist-catalog">
+                    <h2>Releases</h2>
+                    <div class="album-grid" id="artist-albums">
+                        <!-- Dynamic Artist Albums -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Album / Purchase View -->
+        <section id="album-view" class="view hidden">
+            <div class="album-container">
+                <div class="album-art-column">
+                    <img id="album-cover" src="/api/assets/placeholder.png" alt="Album Cover" class="album-cover-img">
+                </div>
+                <div class="album-details-column">
+                    <h1 id="album-title">Album Title</h1>
+                    <p class="album-artist-link">by <a href="#/" id="album-artist-name">Artist</a></p>
+                    <div class="album-buy-section">
+                        <button class="btn btn-primary btn-lg" id="btn-buy-album">Buy Album $<span id="album-price">0.00</span></button>
+                    </div>
+                    <div class="tracklist-container">
+                        <h3>Tracklist</h3>
+                        <div class="tracklist" id="album-tracks">
+                            <!-- Dynamic Tracks -->
+                        </div>
+                    </div>
+                    <div class="album-description" id="album-desc"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Dashboard View -->
+        <section id="dashboard-view" class="view hidden">
+            <div class="dashboard-header">
+                <h1>Artist Dashboard</h1>
+                <p>Manage your Central catalog, Stripe payouts, and Google Drive storage.</p>
+            </div>
+
+            <!-- Profile Creation Prompt for Listeners -->
+            <div class="card hidden" id="dashboard-setup-profile">
+                <h2>Create Your Artist Profile</h2>
+                <p>To start publishing music and receiving payments, set up your public artist profile name and url slug.</p>
+                <form id="form-create-profile" class="form-group">
+                    <label for="artist-profile-name">Artist/Label Name</label>
+                    <input type="text" id="artist-profile-name" required placeholder="My Music Label">
+                    
+                    <label for="artist-profile-slug">URL Slug (e.g. tunecamp.com/artist/slug)</label>
+                    <input type="text" id="artist-profile-slug" required placeholder="mymusic">
+                    
+                    <button type="submit" class="btn btn-primary">Create Profile</button>
+                </form>
+            </div>
+
+            <!-- Dashboard Content for Artists -->
+            <div id="dashboard-artist-content" class="hidden">
+                <div class="dashboard-grid">
+                    <!-- Column 1: Integrations -->
+                    <div class="card">
+                        <h2>1. Connect Services</h2>
+                        <div class="integration-item" id="stripe-status">
+                            <div class="status-info">
+                                <span class="status-label">Stripe Connect Payouts</span>
+                                <span class="badge badge-error" id="stripe-badge">Disconnected</span>
+                            </div>
+                            <p class="status-description">Required to receive credit card payments from fans directly to your bank account.</p>
+                            <button class="btn btn-outline btn-sm" id="btn-connect-stripe">Setup Payouts</button>
+                        </div>
+
+                        <div class="integration-item" id="gdrive-status">
+                            <div class="status-info">
+                                <span class="status-label">Google Drive Storage</span>
+                                <span class="badge badge-error" id="gdrive-badge">Disconnected</span>
+                            </div>
+                            <p class="status-description">Required to host and stream your music files. Files remain in your own cloud drive.</p>
+                            <button class="btn btn-outline btn-sm" id="btn-connect-gdrive">Connect Drive</button>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Upload / Publish -->
+                    <div class="card">
+                        <h2>2. Create Album</h2>
+                        <form id="form-create-album" class="form-group">
+                            <label for="new-album-title">Album Title</label>
+                            <input type="text" id="new-album-title" required placeholder="Visions of Light">
+                            
+                            <label for="new-album-slug">URL Slug</label>
+                            <input type="text" id="new-album-slug" required placeholder="visions-of-light">
+                            
+                            <label for="new-album-price">Price (USD)</label>
+                            <input type="number" id="new-album-price" min="0" step="0.01" required value="7.00">
+                            
+                            <button type="submit" class="btn btn-primary">Publish Album</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Add Tracks section -->
+                <div class="card margin-top">
+                    <h2>3. Import Tracks from Connected Drive</h2>
+                    <div class="track-import-section">
+                        <div class="form-group-inline">
+                            <label for="select-track-album">Select Target Album</label>
+                            <select id="select-track-album">
+                                <option value="">-- Choose Album --</option>
+                            </select>
+                            <button class="btn btn-outline" id="btn-refresh-gdrive-files">Scan Drive Audio Files</button>
+                        </div>
+
+                        <div class="gdrive-files-list-container">
+                            <table class="files-table">
+                               <thead>
+                                   <tr>
+                                       <th>File Name</th>
+                                       <th>Size</th>
+                                       <th>Action</th>
+                                   </tr>
+                               </thead>
+                               <tbody id="gdrive-files-list">
+                                   <tr>
+                                       <td colspan="3" class="placeholder-td">Connect Google Drive to scan for FLAC, WAV, and MP3 files.</td>
+                                   </tr>
+                               </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Sign In / Register View -->
+        <section id="login-view" class="view hidden">
+            <div class="auth-card">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="tab-login">Sign In</button>
+                    <button class="auth-tab" id="tab-register">Register</button>
+                </div>
+                
+                <form id="form-auth" class="form-group">
+                    <label for="auth-username">Email / Username</label>
+                    <input type="text" id="auth-username" required placeholder="you@example.com">
+                    
+                    <label for="auth-password">Password</label>
+                    <input type="password" id="auth-password" required placeholder="••••••••">
+                    
+                    <button type="submit" class="btn btn-primary btn-block" id="btn-submit-auth">Sign In</button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Global Audio Player (TuneCamp Bar Layout) -->
+    <footer class="player-bar" id="global-player">
+        <audio id="player-audio-element" style="display: none;"></audio>
+        
+        <div class="player-container">
+            <!-- Left: Track Cover & Details -->
+            <div class="player-track-info">
+                <div class="player-cover-container">
+                    <svg class="music-icon-placeholder" viewBox="0 0 24 24" id="player-cover-placeholder">
+                        <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9Z"/>
+                    </svg>
+                    <img id="player-cover" src="" alt="Cover" class="player-cover-img hidden">
+                </div>
+                <div class="player-track-details">
+                    <div class="player-title" id="player-title">Select a track</div>
+                    <div class="player-artist" id="player-artist">to start listening</div>
+                </div>
+            </div>
+
+            <!-- Middle: Controls & Progress -->
+            <div class="player-controls-section">
+                <div class="player-buttons">
+                    <button class="btn-player-control" id="btn-prev" aria-label="Previous">
+                        <svg viewBox="0 0 24 24" class="icon-svg"><path fill="currentColor" d="M6,18V6H8V18H6M9.5,12L18,6V18L9.5,12Z"/></svg>
+                    </button>
+                    <button class="btn-player-play" id="btn-play-pause" aria-label="Play">
+                        <svg viewBox="0 0 24 24" class="icon-svg-lg" id="play-icon"><path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+                        <svg viewBox="0 0 24 24" class="icon-svg-lg hidden" id="pause-icon"><path fill="currentColor" d="M14,19H18V5H14M6,19H10V5H6V19Z"/></svg>
+                    </button>
+                    <button class="btn-player-control" id="btn-next" aria-label="Next">
+                        <svg viewBox="0 0 24 24" class="icon-svg"><path fill="currentColor" d="M16,18H18V6H16M6,18V6L14.5,12L6,18Z"/></svg>
+                    </button>
+                </div>
+                
+                <div class="player-timeline">
+                    <span class="time-label" id="time-current">0:00</span>
+                    <div class="timeline-slider-container" id="timeline-container">
+                        <div class="timeline-track">
+                            <div class="timeline-progress" id="player-progress-bar" style="width: 0%;"></div>
+                        </div>
+                        <input type="range" id="player-timeline-slider" min="0" max="100" value="0" step="0.1" aria-label="Seek track">
+                    </div>
+                    <span class="time-label" id="time-total">0:00</span>
+                </div>
+            </div>
+
+            <!-- Right: Volume & Buy link -->
+            <div class="player-options-section">
+                <div class="volume-control">
+                    <svg viewBox="0 0 24 24" class="icon-svg-sm opacity-60"><path fill="currentColor" d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"/></svg>
+                    <input type="range" id="player-volume-slider" min="0" max="1" step="0.05" value="0.8" aria-label="Volume">
+                </div>
+                
+                <button class="btn btn-primary btn-sm hidden" id="player-buy-btn">Buy Track</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JS Scripts -->
+    <script type="module" src="/js/api.js"></script>
+    <script type="module" src="/js/player.js"></script>
+    <script type="module" src="/js/app.js"></script>
+</body>
+</html>
